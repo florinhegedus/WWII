@@ -69,7 +69,7 @@ class Tank:
 	def collide(self, bomb):
 		bomb_mask = bomb.get_mask()
 		tank_mask = self.get_mask()
-		collision_point = bomb_mask.overlap(tank_mask, (self.x - bomb.x, self.y - round(bomb.y)))
+		collision_point = bomb_mask.overlap(tank_mask, (self.x - round(bomb.x), self.y - round(bomb.y)))
 		if collision_point:
 			return True
 		return False
@@ -110,6 +110,7 @@ class Bomb:
 	image = pygame.image.load('bomb2.png')
 	velocity_x = -2
 	velocity_y = 0.5
+	angle = 0
 	def __init__(self, x):
 		self.x = x
 		self.y = 150
@@ -119,6 +120,7 @@ class Bomb:
 	def draw_drop(self,angle):
 		rotate = pygame.transform.scale(self.image, [60, 15])
 		rotate = pygame.transform.rotate(rotate, angle)
+		self.angle = angle
 		dis.blit(rotate, [self.x, self.y])
 	def move(self):
 		if self.x > 1500:
@@ -131,7 +133,9 @@ class Bomb:
 		self.velocity_y += 0.02
 		self.draw_drop(-self.velocity_y * 15)
 	def get_mask(self):
-		return pygame.mask.from_surface(self.image)
+		rotate = pygame.transform.scale(self.image, [60, 15])
+		rotate = pygame.transform.rotate(rotate, self.angle)
+		return pygame.mask.from_surface(rotate)
 
 def gameIntro():
 	intro = True
