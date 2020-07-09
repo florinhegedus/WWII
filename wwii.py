@@ -12,7 +12,7 @@ pygame.display.set_caption("WWII The Invasion of London")
 
 #Clock
 clock = pygame.time.Clock()
-dt = clock.tick(60)
+dt = 1.0/clock.tick(60)
 
 #Colors
 white = (255,255,255)
@@ -26,6 +26,9 @@ green = (0,255,0)
 font1 = pygame.font.Font('ChursaechsischeFraktur.ttf', 30)
 font2 = pygame.font.Font('Qiko.ttf', 30)
 font3 = pygame.font.Font('Marsh Stencil Regular.otf', 60)
+
+#Speed
+SPEED = 5 * dt * 30
 
 #Title text function
 def title():
@@ -55,7 +58,7 @@ def display_final_score(score):
 #Tank
 class Tank:
 	image = pygame.image.load('panzer_ii_black.png')
-	velocity = 1
+	velocity = SPEED/2
 	def __init__(self, x):
 		self.x = x
 		self.y = 572
@@ -69,7 +72,7 @@ class Tank:
 	def collide(self, bomb):
 		bomb_mask = bomb.get_mask()
 		tank_mask = self.get_mask()
-		collision_point = bomb_mask.overlap(tank_mask, (self.x - round(bomb.x), self.y - round(bomb.y)))
+		collision_point = bomb_mask.overlap(tank_mask, (round(self.x) - round(bomb.x), round(self.y) - round(bomb.y)))
 		if collision_point:
 			return True
 		return False
@@ -77,7 +80,7 @@ class Tank:
 #Plane
 class Plane:
 	image = pygame.image.load('plane_2d_2.png')
-	velocity = -2
+	velocity = -SPEED
 	bomb_launched = False
 	def __init__(self, x, bomb):
 		self.x = x
@@ -90,26 +93,26 @@ class Plane:
 		self.x -= self.velocity
 		if self.x > 1300:
 			self.x = -200
-			self.velocity = -2
-			self.bomb.velocity_x = -2
+			self.velocity = -SPEED
+			self.bomb.velocity_x = -SPEED
 			self.bomb_launched = False
 			self.bomb.x = -120
 			self.bomb.y = 150
-			self.bomb.velocity_y = 0.5
+			self.bomb.velocity_y = SPEED/4
 		if self.bomb_launched == False:
 			self.bomb.move()
 		else:
 			self.bomb.drop()
 	def accelerate(self):
-		self.velocity = -4
+		self.velocity = -2 * SPEED
 		if not self.bomb_launched:
-			self.bomb.velocity_x = -4
+			self.bomb.velocity_x = -2 * SPEED
 
 #Bomb
 class Bomb:
 	image = pygame.image.load('bomb2.png')
-	velocity_x = -2
-	velocity_y = 0.5
+	velocity_x = -SPEED
+	velocity_y = SPEED/4
 	angle = 0
 	def __init__(self, x):
 		self.x = x
@@ -130,8 +133,8 @@ class Bomb:
 	def drop(self):
 		self.x -= self.velocity_x
 		self.y += self.velocity_y
-		self.velocity_y += 0.02
-		self.draw_drop(-self.velocity_y * 15)
+		self.velocity_y += 0.3
+		self.draw_drop(-self.velocity_y * 4)
 	def get_mask(self):
 		rotate = pygame.transform.scale(self.image, [60, 15])
 		rotate = pygame.transform.rotate(rotate, self.angle)
@@ -181,7 +184,9 @@ def gameLoop():
 	bomb = Bomb(-120)
 	plane = Plane(-200, bomb)
 	tanks = [Tank(1300), Tank(1960), Tank(2600)]
+
 	while not game_over:
+		clock.tick(60)
 		dis.fill(red)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -199,7 +204,7 @@ def gameLoop():
 		plane.draw()
 		plane.move()
 		for tank in tanks:
-			if tank.x < -200:
+			if tank.x < -100:
 				tank.x = 1300
 				game_over = True
 			tank.move()
@@ -213,6 +218,7 @@ def gameLoop():
 					new_tank = Tank(random.randint(1500, 2500))
 					tanks.append(new_tank)
 		pygame.display.update()
+		
 	gameOver(score)
 
 gameIntro()
