@@ -55,9 +55,14 @@ def display_final_score(score):
 	text = font3.render("Score: " + str(score), True, black)
 	dis.blit(text, [500, 420])
 
+#Last possible hit point
+def last_possible_hitpoint():
+	dist = 50 * SPEED - 120
+	pygame.draw.rect(dis, white, [dist, 650, 10, 50])
+
 #Tank
 class Tank:
-	image = pygame.image.load('panzer_ii_black.png')
+	image = pygame.image.load('panzer_ii_black.png').convert_alpha()
 	velocity = SPEED/2
 	def __init__(self, x):
 		self.x = x
@@ -79,7 +84,7 @@ class Tank:
 
 #Plane
 class Plane:
-	image = pygame.image.load('plane_2d_2.png')
+	image = pygame.image.load('plane_2d_2.png').convert_alpha()
 	velocity = -SPEED
 	bomb_launched = False
 	def __init__(self, x, bomb):
@@ -98,7 +103,7 @@ class Plane:
 			self.bomb_launched = False
 			self.bomb.x = -120
 			self.bomb.y = 150
-			self.bomb.velocity_y = SPEED/4
+			self.bomb.velocity_y = 0
 		if self.bomb_launched == False:
 			self.bomb.move()
 		else:
@@ -110,9 +115,9 @@ class Plane:
 
 #Bomb
 class Bomb:
-	image = pygame.image.load('bomb2.png')
+	image = pygame.image.load('bomb2.png').convert_alpha()
 	velocity_x = -SPEED
-	velocity_y = SPEED/4
+	velocity_y = 0
 	angle = 0
 	def __init__(self, x):
 		self.x = x
@@ -133,8 +138,8 @@ class Bomb:
 	def drop(self):
 		self.x -= self.velocity_x
 		self.y += self.velocity_y
-		self.velocity_y += 0.3
-		self.draw_drop(-self.velocity_y * 4)
+		self.velocity_y += 0.4
+		self.draw_drop(-self.velocity_y * 3)
 	def get_mask(self):
 		rotate = pygame.transform.scale(self.image, [60, 15])
 		rotate = pygame.transform.rotate(rotate, self.angle)
@@ -200,6 +205,7 @@ def gameLoop():
 					plane.accelerate()
 
 		floor()
+		last_possible_hitpoint()
 		display_score(score)
 		plane.draw()
 		plane.move()
